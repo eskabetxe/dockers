@@ -5,11 +5,9 @@ MAINTAINER eskabetxe
 RUN set -x \
 	&& apt-get update \
 	&& apt-get install --no-install-recommends -y  \
-		openssh-server \
-		openssh-client \
-		wget \
-		vim \
-	&& rm -rf /var/lib/apt/lists/* 
+		wget openssh-server openssh-client \
+	&& rm -rf /var/lib/apt/lists/* \
+    && apt-get autoclean
 
 
 # hadoop

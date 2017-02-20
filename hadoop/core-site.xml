@@ -4,7 +4,7 @@
 <configuration>
   <property>
     <name>fs.default.name</name>
-    <value>hdfs://localhost:9000</value>
+    <value>hdfs://172.25.0.2:9000</value>
   </property>
   <property>
     <name>hadoop.tmp.dir</name>
