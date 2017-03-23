@@ -2,6 +2,14 @@ version: '2'
 
 services:
 
+  zookeeper:
+    image: eskabetxe:zookeeper
+    ports:
+      - "2181:2181"
+    networks:
+      mynet:
+        ipv4_address: 172.25.0.3
+
   kafka:
     image: eskabetxe:kafka
     ports:
@@ -18,13 +26,80 @@ services:
     depends_on:
       - zookeeper
 
-  zookeeper:
-    image: eskabetxe:zookeeper
+  drill:
+    image: eskabetxe:drill
     ports:
-      - "2181:2181"
+      - "8047:8047"
+    environment:
+      CLUSTER_ID: drill_cluster
+      ZOOKEEPER: 172.25.0.3:2181
+ #   volumes:
+ #     - /var/run/docker.sock:/var/run/docker.sock
     networks:
       mynet:
-        ipv4_address: 172.25.0.3
+        ipv4_address: 172.25.0.4
+    depends_on:
+      - zookeeper
+
+  kudu-master:
+    image: eskabetxe:kudu
+    hostname: 172.25.0.6
+    ports:
+      - "8051:8051"
+    volumes:
+      - /var/lib/kudu/master
+    command: master
+    networks:
+      mynet:
+        ipv4_address: 172.25.0.6
+
+  kudu-tserver1:
+    image: eskabetxe:kudu
+    hostname: 172.25.0.7
+    environment:
+      - KUDU_MASTER=172.25.0.6
+    ports:
+      - "8054:8050"
+    volumes:
+      - /var/lib/kudu/tserver
+    command: tserver
+    networks:
+      mynet:
+        ipv4_address: 172.25.0.7
+    links:
+      - kudu-master
+
+  kudu-tserver2:
+    image: eskabetxe:kudu
+    hostname: 172.25.0.8
+    environment:
+      - KUDU_MASTER=172.25.0.6
+    ports:
+      - "8052:8050"
+    volumes:
+      - /var/lib/kudu/tserver
+    command: tserver
+    networks:
+      mynet:
+        ipv4_address: 172.25.0.8
+    links:
+      - kudu-master
+
+  kudu-tserver3:
+    image: eskabetxe:kudu
+    hostname: 172.25.0.9
+    environment:
+      - KUDU_MASTER=172.25.0.6
+    ports:
+      - "8053:8050"
+    volumes:
+      - /var/lib/kudu/tserver
+    command: tserver
+    networks:
+      mynet:
+        ipv4_address: 172.25.0.9
+    links:
+      - kudu-master
 
 networks:
   mynet:

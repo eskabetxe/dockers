@@ -1,12 +1,13 @@
-FROM eskabetxe:java-jre-8
+FROM eskabetxe:java
 MAINTAINER eskabetxe
 
 # prepare
 RUN set -x \
 	&& apt-get update \
 	&& apt-get install --no-install-recommends -y  \
-		wget openssh-server vim \
-	&& rm -rf /var/lib/apt/lists/*
+		openssh-server \
+	&& rm -rf /var/lib/apt/lists/* \
+    && apt-get autoclean
 
 
 ENV ZOOKEEPER_VERSION 3.4.9
@@ -23,6 +24,7 @@ RUN sed -i "s|/tmp/zookeeper|$ZOOKEEPER_HOME/data|g" conf/zoo.cfg; mkdir data
 
 ADD start-zookeeper.sh /usr/bin/start-zk.sh
 RUN chmod a+x /usr/bin/start-zk.sh
+
 EXPOSE 2181 2888 3888
 
 VOLUME ["$ZOOKEEPER_HOME/conf", "$ZOOKEEPER_HOME/data"]

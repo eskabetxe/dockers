@@ -1,16 +1,16 @@
-FROM eskabetxe:java-jre-8
+FROM eskabetxe:java
 MAINTAINER eskabetxe
 
 # prepare
 RUN set -x \
 	&& apt-get update \
 	&& apt-get install --no-install-recommends -y  \
-		wget supervisor docker.io net-tools \
+		supervisor docker.io net-tools \
 	&& rm -rf /var/lib/apt/lists/* \
 	&& apt-get autoclean
 
 ENV SCALA_VERSION 2.11
-ENV KAFKA_VERSION 0.10.1.1
+ENV KAFKA_VERSION 0.10.2.0
 ENV KAFKA_HOME /opt/kafka_$SCALA_VERSION-$KAFKA_VERSION
 
 # download

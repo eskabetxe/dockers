@@ -1,4 +1,4 @@
-FROM eskabetxe:java-jre-8
+FROM eskabetxe:java
 MAINTAINER eskabetxe
 
 # prepare
