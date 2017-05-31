@@ -1,15 +1,12 @@
-FROM eskabetxe:java
+FROM eskabetxe:java8
 MAINTAINER eskabetxe
-
 
 RUN set -x \
     && apt-get update \
-#    && apt-get -y install wget curl \
     && cd /etc/apt/sources.list.d \
     && wget -qO - http://archive.cloudera.com/kudu/debian/jessie/amd64/kudu/archive.key | apt-key add - \
     && wget http://archive.cloudera.com/kudu/debian/jessie/amd64/kudu/cloudera.list \
     && apt-get update \
- #   && apt-get -y dist-upgrade \
     && apt-get install  --no-install-recommends -y \
        kudu kudu-master kudu-tserver libkuduclient0 libkuduclient-dev \
     && rm -rf /var/lib/apt/lists/* \

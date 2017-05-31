@@ -1,9 +1,10 @@
-FROM eskabetxe:java
+FROM eskabetxe:java8
 MAINTAINER eskabetxe
 
 ARG ZOOKEEPER
 
 ENV DRILL_VERSION 1.10.0
+ENV KUDU_VERSION 1.3.0
 ENV DRILL_HOME /opt/apache-drill-$DRILL_VERSION
 
 # download
@@ -13,6 +14,8 @@ RUN wget http://apache.rediris.es/drill/drill-$DRILL_VERSION/apache-drill-$DRILL
 
 WORKDIR $DRILL_HOME
 
+COPY drill-kudu-storage-$DRILL_VERSION.jar $DRILL_HOME/jars/
+COPY kudu-client-$KUDU_VERSION.jar $DRILL_HOME/jars/3rdparty/
 
 EXPOSE 8047 31010 31011 31012 46655
 

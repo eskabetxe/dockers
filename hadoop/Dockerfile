@@ -1,4 +1,4 @@
-FROM eskabetxe:java
+FROM eskabetxe:java8
 MAINTAINER eskabetxe
 
 # prepare
@@ -10,30 +10,34 @@ RUN set -x \
     && apt-get autoclean
 
 
+ENV HADOOP_VERSION 2.8.0
+ENV HADOOP_HOME /opt/hadoop-$HADOOP_VERSION
+
 # hadoop
 WORKDIR /opt
-RUN wget http://apache.rediris.es/hadoop/common/hadoop-2.7.3/hadoop-2.7.3.tar.gz \
-    && tar -xzf /opt/hadoop-2.7.3.tar.gz \
-    && mv hadoop-2.7.3 hadoop \
-    && rm hadoop-2.7.3.tar.gz
+RUN wget http://apache.rediris.es/hadoop/common/hadoop-$HADOOP_VERSION/hadoop-$HADOOP_VERSION.tar.gz \
+    && tar -xzf /opt/hadoop-$HADOOP_VERSION.tar.gz
 
+RUN echo 'export PATH=$PATH:'$HADOOP_HOME'/bin:/opt/hadoop/sbin' >> ~/.bashrc
+RUN echo 'export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/' >> $HADOOP_HOME/etc/hadoop/hadoop-env.sh
+RUN echo 'export HADOOP_PREFIX='$HADOOP_HOME >> $HADOOP_HOME/etc/hadoop/hadoop-env.sh
 
-
-RUN echo 'export PATH=$PATH:/opt/hadoop/bin:/opt/hadoop/sbin' >> ~/.bashrc 
-RUN echo 'export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/' >> /opt/hadoop/etc/hadoop/hadoop-env.sh
-RUN echo 'export HADOOP_PREFIX=/opt/hadoop' >> /opt/hadoop/etc/hadoop/hadoop-env.sh
 
 # pseudo distributed
-ADD core-site.xml /opt/hadoop/etc/hadoop/core-site.xml
-ADD hdfs-site.xml /opt/hadoop/etc/hadoop/hdfs-site.xml
-ADD mapred-site.xml /opt/hadoop/etc/hadoop/mapred-site.xml
-ADD yarn-site.xml /opt/hadoop/etc/hadoop/yarn-site.xml
+ADD core-site.xml $HADOOP_HOME/etc/hadoop/core-site.xml
+ADD hdfs-site.xml $HADOOP_HOME/etc/hadoop/hdfs-site.xml
+ADD mapred-site.xml $HADOOP_HOME/etc/hadoop/mapred-site.xml
+ADD yarn-site.xml $HADOOP_HOME/etc/hadoop/yarn-site.xml
 
+RUN sed -i -e 's/HOST/'"${HADOOP_NAMENODE-localhost}"'/' $HADOOP_HOME/etc/hadoop/core-site.xml
+RUN sed -i -e 's/VERSION/'"$HADOOP_VERSION"'/' $HADOOP_HOME/etc/hadoop/core-site.xml
 
 #RUN addgroup hadoop \
 #    && adduser --ingroup hadoop hadoop \
-#    && chown -R hadoop:hadoop /opt/hadoop
+#    && chown -R hadoop:hadoop $HADOOP_HOME
 #USER hadoop
+
+RUN chown root:root $HADOOP_HOME -R
 
 # SSH keygen Passwordless
 RUN ssh-keygen -t rsa -P "" -f "/root/.ssh/id_rsa" \
@@ -41,21 +45,22 @@ RUN ssh-keygen -t rsa -P "" -f "/root/.ssh/id_rsa" \
  && chmod 644 /root/.ssh/authorized_keys
 
 # disable ssh strict host key check
-#RUN sed -i '/StrictHostKeyChecking/s/#//g' /etc/ssh/ssh_config \
-#&& sed -i '/StrictHostKeyChecking/s/ask/no/g' /etc/ssh/ssh_config
+RUN sed -i '/StrictHostKeyChecking/s/#//g' /etc/ssh/ssh_config \
+ && sed -i '/StrictHostKeyChecking/s/ask/no/g' /etc/ssh/ssh_config
 
 # workingaround docker.io build error
-RUN ls -la /opt/hadoop/etc/hadoop/*-env.sh
-RUN chmod +x /opt/hadoop/etc/hadoop/*-env.sh
-RUN ls -la /opt/hadoop/etc/hadoop/*-env.sh
+RUN ls -la $HADOOP_HOME/etc/hadoop/*-env.sh
+RUN chmod +x $HADOOP_HOME/etc/hadoop/*-env.sh
+RUN ls -la $HADOOP_HOME/etc/hadoop/*-env.sh
 
-
-RUN /opt/hadoop/bin/hdfs namenode -format
+RUN $HADOOP_HOME/bin/hdfs namenode -format -Y
 
 ADD bootstrap.sh /etc/bootstrap.sh
 RUN chown root:root /etc/bootstrap.sh
 RUN chmod 700 /etc/bootstrap.sh
 CMD ["/etc/bootstrap.sh", "-d"]
+
+WORKDIR $HADOOP_HOME
 
 RUN echo done
 # Hdfs ports

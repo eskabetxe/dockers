@@ -2,11 +2,11 @@
 
 service ssh start
 
-/opt/hadoop/etc/hadoop/hadoop-env.sh
+$HADOOP_HOME/etc/hadoop/hadoop-env.sh
 
-/opt/hadoop/sbin/start-dfs.sh
-/opt/hadoop/sbin/start-yarn.sh
-/opt/hadoop/sbin/mr-jobhistory-daemon.sh start historyserver
+$HADOOP_HOME/sbin/start-dfs.sh
+$HADOOP_HOME/sbin/start-yarn.sh
+$HADOOP_HOME/sbin/mr-jobhistory-daemon.sh start historyserver
 
 if [[ $1 == "-d" ]]; then
   while true; do sleep 1000; done

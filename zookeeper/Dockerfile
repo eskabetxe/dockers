@@ -1,4 +1,4 @@
-FROM eskabetxe:java
+FROM eskabetxe:java8
 MAINTAINER eskabetxe
 
 # prepare
@@ -10,7 +10,7 @@ RUN set -x \
     && apt-get autoclean
 
 
-ENV ZOOKEEPER_VERSION 3.4.9
+ENV ZOOKEEPER_VERSION 3.4.10
 ENV ZOOKEEPER_HOME /opt/zookeeper-$ZOOKEEPER_VERSION
 
 # download
