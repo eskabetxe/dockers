@@ -1,0 +1,29 @@
+## storm configs 
+ storm.local.dir: "/opt/storm/data"
+ storm.log.dir: "/opt/storm/logs"
+ storm.workers.artifacts.dir: "/opt/storm/logs/workers"
+
+## zookeeper configs 
+ storm.zookeeper.servers:
+    - "172.25.0.3"
+ 
+## nimbus configs
+ nimbus.childopts: "-Xmx2g -XX:+UseG1GC -XX:+UseStringDeduplication -XX:+AggressiveOpts -XX:+UseCompressedOops"
+ nimbus.seeds: ["172.25.0.10"]
+ 
+## supervisor configs
+ supervisor.childopts: "-Xmx256m -XX:+UseG1GC -XX:+UseStringDeduplication -XX:+AggressiveOpts -XX:+UseCompressedOops"
+ supervisor.worker.timeout.secs : 500
+ supervisor.slots.ports:
+    - 6701
+    - 6702
+    - 6703
+    - 6704
+    - 6705
+ 
+## worker configs
+ topology.message.timeout.secs: 500
+ worker.heap.memory.mb: 1000
+ worker.childopts: "-Xmx%HEAP-MEM%m -XX:+UseG1GC -XX:+UseStringDeduplication -XX:+AggressiveOpts -XX:+UseCompressedOops"
+ worker.gc.childopts: "-Xloggc:/storm/logs/gc-worker-%ID%.log -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 -XX:GCLogFileSize=1m -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -XX:+PrintTenuringDistribution -XX:+PrintGCApplicationStoppedTime -XX:-PrintGCApplicationConcurrentTime -XX:+PrintCommandLineFlags -XX:+PrintFlagsFinal -XX:+PrintHeapAtGC -XX:+PrintClassHistogram -XX:-OmitStackTraceInFastThrow "
+
