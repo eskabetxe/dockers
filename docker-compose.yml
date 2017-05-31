@@ -5,7 +5,7 @@ services:
   hadoop:
     image: eskabetxe:hadoop
     container_name: hadoop
-    hostname: hadoop
+    hostname: 172.25.0.2
     ports:
       - "50070:50070"
       - "50075:50075"
