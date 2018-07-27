@@ -1,18 +1,28 @@
-FROM eskabetxe:java8
+FROM bitnami/minideb:stretch
 MAINTAINER eskabetxe
 
 RUN set -x \
     && apt-get update \
-    && cd /etc/apt/sources.list.d \
-    && wget -qO - http://archive.cloudera.com/kudu/debian/jessie/amd64/kudu/archive.key | apt-key add - \
-    && wget http://archive.cloudera.com/kudu/debian/jessie/amd64/kudu/cloudera.list \
-    && apt-get update \
-    && apt-get install  --no-install-recommends -y \
-       kudu kudu-master kudu-tserver libkuduclient0 libkuduclient-dev \
-    && rm -rf /var/lib/apt/lists/* \
+    && apt-get install -y --no-install-recommends \
+	   autoconf automake curl flex g++ gcc gdb git \
+	   libsasl2-dev libsasl2-modules libsasl2-modules-gssapi-mit libssl-dev libtool lsb-release \
+	   make ntp openjdk-8-jdk openssl patch pkg-config python rsync unzip vim-common \
+    && apt-get autoremove \
     && apt-get autoclean
 
-VOLUME /var/lib/kudu/master /var/lib/kudu/tserver
+WORKDIR /opt/git
+RUN git clone https://github.com/apache/kudu
+WORKDIR /opt/git/kudu
+
+RUN thirdparty/build-if-necessary.sh
+
+RUN mkdir -p build/release
+RUN cd build/release
+RUN ../../thirdparty/installed/common/bin/cmake -DCMAKE_BUILD_TYPE=release ../..
+RUN make -j4
+
+RUN sudo make DESTDIR=/opt/kudu install
+
 
 COPY docker-entrypoint.sh /
 RUN chmod a+x /docker-entrypoint.sh
